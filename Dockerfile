@@ -1,7 +1,7 @@
 # ============================================================================
 # Stage 1: Build frontend
 # ============================================================================
-FROM node:20-slim AS frontend-build
+FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/node:20-slim AS frontend-build
 
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json ./
@@ -12,7 +12,7 @@ RUN npm run build
 # ============================================================================
 # Stage 2: Python runtime
 # ============================================================================
-FROM python:3.11-slim AS runtime
+FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/python:3.11-slim AS runtime
 
 WORKDIR /app
 
