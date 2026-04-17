@@ -40,3 +40,5 @@ agent/vibe_trading_ai.egg-info/
 agent/tests/e2e_backtest/
 dist/
 build/
+.idea
+uv.lock
