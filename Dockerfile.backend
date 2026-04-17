@@ -1,0 +1,32 @@
+# ============================================================================
+# Python runtime (backend only, no frontend)
+# ============================================================================
+FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/python:3.11-slim
+
+WORKDIR /app
+
+# System deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python deps (install before copying code for layer caching)
+COPY agent/requirements.txt agent/requirements.txt
+RUN pip install --no-cache-dir -r agent/requirements.txt -i https://mirrors.huaweicloud.com/repository/pypi/simple/
+
+# Copy project
+COPY pyproject.toml LICENSE README.md ./
+COPY agent/ agent/
+
+# Install CLI entrypoint
+RUN pip install --no-cache-dir -e .
+
+# Default port
+EXPOSE 8899
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8899/health')" || exit 1
+
+# Run API server (no frontend static files - frontend served by nginx)
+CMD ["vibe-trading", "serve", "--host", "0.0.0.0", "--port", "8899"]
